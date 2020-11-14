@@ -1,6 +1,6 @@
 # rcGL
 Movimiento de la cámara:
-W y S para traslación en X
+W y S para traslación en X \n
 A y D para traslación en Y
 Q y E para traslación en Z
 R y F para pitch
