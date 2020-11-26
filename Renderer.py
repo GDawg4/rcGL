@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from math import sqrt, sin, cos, tan, radians
 
 from main import Renderer
 import shaders
@@ -23,6 +24,7 @@ cubeZ = 0
 roll = 0
 pitch = 0
 yaw = 0
+distance = 0
 
 isPlaying = True
 while isPlaying:
@@ -30,29 +32,57 @@ while isPlaying:
     # Para revisar si una tecla esta presionada
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
-        cubeX -= 2 * deltaTime
+        yaw -= 90 * deltaTime % 360
+        positions = r.get_info()
+        cube_pos = positions[0]
+        cam_pos = positions[1]
+        distance = sqrt((cube_pos.x - cam_pos.x) ** 2 + (cube_pos.y - cam_pos.y) ** 2 + (cube_pos.z - cam_pos.z) ** 2)
+        cubeX = sin(radians(yaw)) * 3
+        cubeZ = cos(radians(yaw)) * 3 - 3
     if keys[pygame.K_d]:
-        cubeX += 2 * deltaTime
+        yaw += 90*deltaTime % 360
+        positions = r.get_info()
+        cube_pos = positions[0]
+        cam_pos = positions[1]
+        distance = sqrt((cube_pos.x - cam_pos.x) ** 2 + (cube_pos.y - cam_pos.y) ** 2 + (cube_pos.z - cam_pos.z) ** 2)
+        cubeX = sin(radians(yaw))*3
+        cubeZ = cos(radians(yaw))*3 - 3
     if keys[pygame.K_q]:
         cubeZ -= 2 * deltaTime
+        cubeZ = max(-2, cubeZ)
     if keys[pygame.K_e]:
         cubeZ += 2 * deltaTime
+        cubeZ = min(2, cubeZ)
     if keys[pygame.K_w]:
-        cubeY += 2 * deltaTime
+        pitch += 90 * deltaTime % 360
+        positions = r.get_info()
+        cube_pos = positions[0]
+        cam_pos = positions[1]
+        distance = sqrt((cube_pos.x - cam_pos.x) ** 2 + (cube_pos.y - cam_pos.y) ** 2 + (cube_pos.z - cam_pos.z) ** 2)
+        cubeY = -sin(radians(pitch))*3
+        cubeZ = cos(radians(pitch))*3 - 3
     if keys[pygame.K_s]:
-        cubeY -= 2 * deltaTime
-    if keys[pygame.K_t]:
-        roll += 10 * deltaTime
-    if keys[pygame.K_g]:
-        roll -= 10 * deltaTime
-    if keys[pygame.K_r]:
-        pitch += 10 * deltaTime
-    if keys[pygame.K_f]:
-        pitch -= 10 * deltaTime
-    if keys[pygame.K_z]:
-        yaw += 10 * deltaTime
-    if keys[pygame.K_x]:
-        yaw -= 10 * deltaTime
+        pitch -= 90 * deltaTime % 360
+        positions = r.get_info()
+        cube_pos = positions[0]
+        cam_pos = positions[1]
+        distance = sqrt((cube_pos.x - cam_pos.x) ** 2 + (cube_pos.y - cam_pos.y) ** 2 + (cube_pos.z - cam_pos.z) ** 2)
+        cubeY = -sin(radians(pitch)) * 3
+        cubeZ = cos(radians(pitch)) * 3 - 3
+
+
+    # if keys[pygame.K_t]:
+    #     roll += 10 * deltaTime
+    # if keys[pygame.K_g]:
+    #     roll -= 10 * deltaTime
+    # if keys[pygame.K_r]:
+    #     pitch += 10 * deltaTime
+    # if keys[pygame.K_f]:
+    #     pitch -= 10 * deltaTime
+    # if keys[pygame.K_z]:
+    #     yaw += 90 * deltaTime
+    # if keys[pygame.K_x]:
+    #     yaw -= 90 * deltaTime
 
     for ev in pygame.event.get():
         if ev.type == pygame.QUIT:
@@ -63,6 +93,16 @@ while isPlaying:
                 r.filled_mode()
             elif ev.key == pygame.K_2:
                 r.wireframe_mode()
+            elif ev.key == pygame.K_SPACE:
+                positions = r.get_info()
+                cube_pos = positions[0]
+                cam_pos = positions[1]
+                distance = sqrt((cube_pos.x-cam_pos.x)**2 + (cube_pos.y-cam_pos.y)**2 + (cube_pos.z-cam_pos.z)**2)
+                print(positions)
+                print(distance)
+                print(cube_pos.z, cam_pos.z)
+                #r.next_figure()
+                #r.set_shaders(shaders.vertex_shader, shaders.fragment_shader)
             elif ev.key == pygame.K_ESCAPE:
                 isPlaying = False
 

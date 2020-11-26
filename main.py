@@ -32,6 +32,69 @@ rect_indices = np.array([  # front
     4, 0, 7,
     0, 3, 7], dtype=np.uint32)
 
+pyramid_verts = np.array([0, 0, 0, 1, 0, 0,
+                          0, 0, -1, 1, 0, 0,
+                          1, 0, 0, 1, 0, 0,
+                          1, 0, -1, 1, 0, 0,
+                          0.5, 1, -0.5, 1, 0, 0], dtype=np.float32)
+
+pyramid_indices = np.array([0, 1, 2,
+                            1, 2, 3,
+                            0, 1, 4,
+                            1, 2, 4,
+                            2, 3, 4,
+                            4, 0, 4], dtype=np.uint32)
+
+octahedron_verts = np.array([0, 1, 0, 1, 0, 0,
+                             0, -1, 0, 1, 0, 0,
+                             1, 0, 1, 1, 0, 0,
+                             -1, 0, 1, 1, 0, 0,
+                             1, 0, -1, 1, 0, 0,
+                             -1, 0, -1, 1, 0, 0,
+                             ], dtype=np.float32)
+
+octahedron_indices = np.array([0, 2, 3,
+                               0, 2, 4,
+                               0, 3, 5,
+                               0, 4, 5,
+                               1, 2, 3,
+                               1, 2, 4,
+                               1, 3, 5,
+                               1, 4, 5,
+                               ], dtype=np.uint32)
+
+icosahedron_vert = np.array([0, 2, 0, 1, 0, 0,
+                             0, 1, -2, 1, 0, 0,
+                             2, 1, -1, 1, 0, 0,
+                             -2, 1, -1, 1, 0, 0,
+                             1, 1, 2, 1, 0, 0,
+                             -1, 1, 2, 1, 0, 0,
+
+                             0, -2, 0, 1, 0, 0,
+                             0, -1, -2, 1, 0, 0,
+                             2, -1, -1, 1, 0, 0,
+                             -2, -1, -1, 1, 0, 0,
+                             1, -1, 2, 1, 0, 0,
+                             -1, -1, 2, 1, 0, 0], dtype=np.float32)
+
+icosahedron_indices = np.array([0, 1, 2,
+                                0, 1, 3,
+                                0, 2, 4,
+                                0, 3, 5,
+                                0, 4, 5,
+                                6, 7, 8,
+                                6, 7, 9,
+                                6, 8, 10,
+                                6, 9, 11,
+                                6, 10, 11,
+                                1, 7, 9,
+                                1, 3, 9
+                                ], dtype=np.uint32)
+
+all_verts = [icosahedron_vert, octahedron_verts, rect_verts, pyramid_verts]
+
+all_indices = [icosahedron_indices, octahedron_indices, rect_indices, pyramid_indices]
+
 
 class Renderer(object):
     def __init__(self, screen):
@@ -49,12 +112,16 @@ class Renderer(object):
         self.cam_pitch = 0
         self.cam_yaw = 0
         self.cam_roll = 0
+        self.current_position = 2
 
     def wireframe_mode(self):
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
     def filled_mode(self):
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+
+    def get_info(self):
+        return [self.cube_pos, self.camera_pos]
 
     def translate_cube(self, x, y, z):
         self.cube_pos = glm.vec3(x, y, z)
@@ -70,6 +137,10 @@ class Renderer(object):
 
     def yaw_camera(self, x):
         self.cam_yaw = x
+
+    def next_figure(self):
+        self.current_position = (self.current_position + 1) % len(all_verts)
+        self.create_objects()
 
     def set_shaders(self, vertex_shader, frag_shader):
 
@@ -90,10 +161,12 @@ class Renderer(object):
         glBindVertexArray(self.VAO)
 
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO)
-        glBufferData(GL_ARRAY_BUFFER, rect_verts.nbytes, rect_verts, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, all_verts[self.current_position].nbytes, all_verts[self.current_position],
+                     GL_STATIC_DRAW)
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.EBO)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, rect_indices.nbytes, rect_indices, GL_STATIC_DRAW)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, all_indices[self.current_position].nbytes,
+                     all_indices[self.current_position], GL_STATIC_DRAW)
 
         # Atributo de posicion de vertices
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * 6, ctypes.c_void_p(0))
