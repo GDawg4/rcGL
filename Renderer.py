@@ -25,6 +25,7 @@ roll = 0
 pitch = 0
 yaw = 0
 distance = 0
+isPlaying = False
 
 isPlaying = True
 while isPlaying:
@@ -101,8 +102,8 @@ while isPlaying:
                 print(positions)
                 print(distance)
                 print(cube_pos.z, cam_pos.z)
-                #r.next_figure()
-                #r.set_shaders(shaders.vertex_shader, shaders.fragment_shader)
+                r.next_figure()
+                r.set_shaders(shaders.vertex_shader, shaders.fragment_shader)
             elif ev.key == pygame.K_ESCAPE:
                 isPlaying = False
 
